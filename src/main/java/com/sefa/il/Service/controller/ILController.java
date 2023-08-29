@@ -1,5 +1,7 @@
 package com.sefa.il.Service.controller;
 
+import com.sefa.il.Service.exception.IlAlreadyExistsException;
+import com.sefa.il.Service.exception.IlNotFoundException;
 import com.sefa.il.Service.model.Il;
 import com.sefa.il.Service.service.IlServices;
 import lombok.AllArgsConstructor;
@@ -12,8 +14,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.HttpStatus.*;
 
 @RestController
 @RequestMapping("/iller")
@@ -25,11 +26,12 @@ public class ILController {
 
 
 @GetMapping
-    public ResponseEntity<List<Il>> getIller(){
-        return new ResponseEntity<>(ilService.getIller(), OK);
+    public ResponseEntity<List<Il>> getIller(@RequestParam(required = false) String name){
+        return new ResponseEntity<>(ilService.getIller(name), OK);
     }
 @GetMapping("/{id}")
     public ResponseEntity<Il> getIl(@PathVariable String id){
+
         return new ResponseEntity<>(getIlById(id), OK);
 }
 
@@ -57,4 +59,14 @@ public class ILController {
     ilService.deleteIl(id);
     return new ResponseEntity<>(OK);
     }
+@ExceptionHandler(IlNotFoundException.class)
+    public ResponseEntity<String> handleIlNotFoundException(IlNotFoundException ex){
+return new ResponseEntity<>(ex.getMessage(),NOT_FOUND);
+    }
+
+    @ExceptionHandler(IlAlreadyExistsException.class)
+    public ResponseEntity<String> handleIlAlreadyExistsException(IlAlreadyExistsException ex){
+        return new ResponseEntity<>(ex.getMessage(),CONFLICT);
+    }
+
 }
